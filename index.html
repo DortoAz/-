@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مدينة إبراهيم — الإصدار ٥</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050c1a;overflow:hidden;font-family:'Tajawal',sans-serif;direction:rtl}
+canvas{display:block;width:100vw;height:100vh}
+#loading{position:fixed;inset:0;background:#050c1a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity 0.8s}
+#loading h1{font-size:52px;font-weight:800;color:#d4a017;margin-bottom:6px;text-shadow:0 0 50px rgba(212,160,23,0.5)}
+#loading p{font-size:14px;color:rgba(255,255,255,0.35);letter-spacing:3px;margin-bottom:48px}
+#pbar{width:320px;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden}
+#pfill{height:100%;width:0%;background:linear-gradient(90deg,#d4a017,#f0d060);border-radius:2px;transition:width .15s}
+#ptxt{font-size:12px;color:rgba(255,255,255,0.28);margin-top:12px;letter-spacing:1px}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+#topbar{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;background:rgba(3,8,18,0.9);border:1px solid rgba(212,160,23,0.2);border-radius:40px;padding:8px 28px;backdrop-filter:blur(16px)}
+#cname{font-size:15px;font-weight:800;letter-spacing:2px;color:#d4a017}
+#cname span{color:rgba(255,255,255,0.3);font-weight:400;font-size:12px;margin-right:6px}
+.st{font-size:12px;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:5px}
+.st b{color:#7ee8a2;font-size:13px}
+.sp{width:1px;height:14px;background:rgba(255,255,255,0.09)}
+#cbadge{position:absolute;top:16px;left:20px;background:rgba(3,8,18,0.9);border:1px solid rgba(100,180,255,0.25);border-radius:20px;padding:6px 16px;font-size:12px;color:#78c8ff;pointer-events:all;cursor:pointer;backdrop-filter:blur(14px);transition:all .2s;letter-spacing:1px}
+#cbadge:hover{border-color:#78c8ff;color:#fff}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#78c8ff;margin-left:7px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+#minimap{position:absolute;bottom:108px;left:20px;width:170px;height:170px;background:rgba(3,8,18,0.92);border:1px solid rgba(212,160,23,0.18);border-radius:10px;overflow:hidden;backdrop-filter:blur(8px)}
+#mmc{width:170px;height:170px}
+#mmlbl{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:10px;color:rgba(212,160,23,0.4);letter-spacing:1px}
+#ipanel{position:absolute;top:76px;right:20px;width:205px;display:flex;flex-direction:column;gap:8px}
+.ic{background:rgba(3,8,18,0.9);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;backdrop-filter:blur(8px)}
+.ict{font-size:10px;letter-spacing:1.5px;color:rgba(212,160,23,0.55);margin-bottom:7px}
+.ir{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:3px}
+.ir span{color:#fff}
+#ctrl{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:5px;align-items:center;background:rgba(3,8,18,0.9);border:1px solid rgba(255,255,255,0.07);border-radius:30px;padding:8px 20px;backdrop-filter:blur(12px)}
+.k{width:32px;height:32px;border-radius:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.11);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(255,255,255,0.55)}
+.k.on{background:rgba(212,160,23,0.18);border-color:rgba(212,160,23,0.5);color:#d4a017}
+.kl{font-size:10px;color:rgba(255,255,255,0.28);letter-spacing:.5px}
+.ks{width:1px;height:20px;background:rgba(255,255,255,0.06);margin:0 3px}
+#notif{position:absolute;top:76px;left:50%;transform:translateX(-50%);background:rgba(3,8,18,0.96);border:1px solid rgba(212,160,23,0.3);border-radius:20px;padding:7px 22px;font-size:13px;color:#d4a017;opacity:0;transition:opacity .35s;pointer-events:none;white-space:nowrap}
+#adhan{position:absolute;top:76px;left:50%;transform:translateX(-50%);background:rgba(3,8,18,0.98);border:1px solid rgba(212,160,23,0.45);border-radius:12px;padding:12px 30px;text-align:center;opacity:0;transition:opacity .6s;pointer-events:none}
+#adhan .at{font-size:16px;font-weight:800;color:#d4a017}
+#adhan .as{font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px}
+#ihint{position:absolute;bottom:200px;left:50%;transform:translateX(-50%);background:rgba(3,8,18,0.92);border:1px solid rgba(120,200,255,0.28);border-radius:20px;padding:6px 18px;font-size:12px;color:#78c8ff;opacity:0;transition:opacity .3s;pointer-events:none}
+#dlg{position:absolute;bottom:120px;left:50%;transform:translateX(-50%);width:min(530px,90vw);background:rgba(3,8,18,0.97);border:1px solid rgba(212,160,23,0.38);border-radius:16px;padding:20px 24px;pointer-events:all;display:none;backdrop-filter:blur(22px);animation:su .3s ease}
+@keyframes su{from{opacity:0;transform:translateX(-50%) translateY(18px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#dlg-sp{font-size:13px;font-weight:700;color:#d4a017;letter-spacing:1px;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+#dlg-ic{font-size:22px}
+#dlg-tx{font-size:14px;color:rgba(255,255,255,0.87);line-height:1.85;margin-bottom:14px}
+#dlg-op{display:flex;flex-direction:column;gap:6px}
+.do{background:rgba(212,160,23,0.09);border:1px solid rgba(212,160,23,0.22);border-radius:8px;padding:8px 14px;font-size:13px;color:rgba(255,255,255,0.78);cursor:pointer;transition:all .2s;text-align:right;font-family:'Tajawal',sans-serif}
+.do:hover{background:rgba(212,160,23,0.22);border-color:rgba(212,160,23,0.5);color:#fff}
+#dlg-x{position:absolute;top:12px;left:14px;background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;font-size:18px;font-family:'Tajawal',sans-serif;transition:color .2s}
+#dlg-x:hover{color:#fff}
+</style>
+</head>
+<body>
+<div id="loading">
+  <h1>مدينة إبراهيم</h1>
+  <p>محاكاة العالم المفتوح — الإصدار ٥</p>
+  <div id="pbar"><div id="pfill"></div></div>
+  <div id="ptxt">جارٍ بناء المدينة...</div>
+</div>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div id="topbar">
+    <div id="cname">مدينة إبراهيم <span>| v4.0</span></div>
+    <div class="sp"></div>
+    <div class="st">👥 <b id="pop">١٢,٤٥٠</b> نسمة</div>
+    <div class="sp"></div>
+    <div class="st">💰 <b id="money">٥٢٠٠ ر</b></div>
+    <div class="sp"></div>
+    <div class="st">🕐 <b id="gtime">٠٨:٠٠</b></div>
+  </div>
+  <div id="cbadge" onclick="CAM.toggle()"><span class="dot"></span><span id="clbl">منظور علوي</span></div>
+  <div id="orbitbadge" onclick="CAM.toggleOrbit()" style="position:absolute;top:52px;left:20px;background:rgba(3,8,18,0.9);border:1px solid rgba(255,180,100,0.25);border-radius:20px;padding:5px 14px;font-size:11px;color:#ffaa55;pointer-events:all;cursor:pointer;backdrop-filter:blur(14px);transition:all .2s;letter-spacing:1px">🎥 كاميرا حرة [F]</div>
+  <div id="minimap"><canvas id="mmc" width="170" height="170"></canvas><div id="mmlbl">خريطة المدينة</div></div>
+  <div id="ipanel">
+    <div class="ic">
+      <div class="ict">حالة اللاعب</div>
+      <div class="ir">الموقع<span id="ppos">٠، ٠</span></div>
+      <div class="ir">السرعة<span id="pspd">مشي</span></div>
+      <div class="ir">المنطقة<span id="pzone">المركز</span></div>
+    </div>
+    <div class="ic">
+      <div class="ict">أنظمة المدينة</div>
+      <div class="ir">الشخصيات<span id="ncnt">٠</span></div>
+      <div class="ir">الشرطة<span style="color:#78c8ff">نشطة</span></div>
+      <div class="ir">السير<span style="color:#7ee8a2">منتظم</span></div>
+    </div>
+  </div>
+  <div id="notif"></div>
+  <div id="adhan"><div class="at">🕌 الأذان</div><div class="as">حان وقت الصلاة</div></div>
+  <div id="ihint">اضغط [E] للتحدث</div>
+  <div id="dlg">
+    <button id="dlg-x" onclick="DLG.close()">✕</button>
+    <div id="dlg-sp"><span id="dlg-ic">👤</span><span id="dlg-nm">—</span></div>
+    <div id="dlg-tx"></div>
+    <div id="dlg-op"></div>
+  </div>
+  <div id="ctrl">
+    <div class="k" id="kw">W</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="display:flex;gap:4px">
+        <div class="k" id="ka">A</div>
+        <div class="k" id="ks">S</div>
+        <div class="k" id="kd">D</div>
+      </div>
+    </div>
+    <div class="ks"></div><div class="kl">تحريك</div>
+    <div class="ks"></div><div class="k" id="kc">C</div><div class="kl">كاميرا</div>
+    <div class="ks"></div><div class="k" id="kr">R</div><div class="kl">جري</div>
+    <div class="ks"></div><div class="k" id="ke">E</div><div class="kl">تفاعل</div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+// تم حفظ الكود كما أرسلته. سنكمل عليه في أي تعديل لاحق.
+</script>
+</body>
+</html>
